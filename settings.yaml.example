@@ -1,0 +1,28 @@
+# ===== 本地配置模板 =====
+# 用法：把本目录（及 go/cfgseed、scripts）下的 *.example 复制一份并去掉 .example 后缀，
+#       然后把所有 CHANGE_ME_* 占位符替换为真实值后再启动程序。
+# 真实配置文件已在 .gitignore 中，严禁提交（历史上曾因明文凭据入库被清除）。
+# 说明：settings.yaml 只保留「连库之前」的引导配置（log + db）；
+#       AI 模型 / 提示词 / 商品归属 / 通用设置已迁到 orderrec 库的 cfg_* 表，
+#       首次启动由 go/cfgseed/cfg_seed.json 种子自动建表灌入。
+#
+# 只保留「连接数据库之前」必须的最小引导配置：日志 + 数据库连接。
+# 其余配置已全部迁移到 orderrec 库的 cfg_* 配置表，改配置请直接改数据库：
+#   cfg_settings         通用设置（email / savePath / version / auth 等）
+#   cfg_ai_models        AI 模型映射与连接参数（原 aimap.json + aimodel 段）
+#   cfg_product_belongs  商品归属映射（原 productbelong.json）
+#   cfg_prompts          全部 AI 提示词（原 systemPrompt.txt 及代码内常量）
+# 首次启动会自动建表并灌入初始数据；也可运行 `go run ./cmd/cfginit` 手动初始化。
+log:
+    level: debug
+    app: order_server
+    dir: logs
+db:
+    - host: CHANGE_ME_DB_HOST
+      port: 23306
+      user: root
+      password: CHANGE_ME_DB_PASSWORD
+      dbname: orderrec
+      debug: false
+      maxIdleConns: 10
+      maxOpenConns: 100

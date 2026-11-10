@@ -1,0 +1,347 @@
+@import "tailwindcss";
+
+/* =========================================================================
+   OrderMaster · 设计令牌（Design Tokens）
+   风格：Notion 极简清爽（浅色） + 有限的企业简洁工程性
+   本文件是全局样式的唯一真源。组件内禁止再写深色 :deep(.el-*) 覆写，
+   统一在此处对 Element Plus 进行浅色主题化。
+   ========================================================================= */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+
+  /* 背景层级 */
+  --color-app: #f7f7f4;          /* 应用主背景（米白） */
+  --color-surface: #ffffff;      /* 卡片 / 浮层表面 */
+  --color-sidebar: #f2f2ee;      /* 侧边栏 */
+  --color-subtle: #f1f1ed;       /* 次级表面 / 表头 */
+  --color-hover: #ededed;        /* hover 态背景 */
+  --color-active: #e3e3de;       /* 选中 / 激活态背景 */
+  --color-disabled: #f5f5f2;     /* 禁用态背景 */
+  --color-overlay: rgba(38, 42, 46, 0.32); /* 遮罩 */
+
+  /* 文字层级 */
+  --color-ink: #2b2f33;          /* 主文字 */
+  --color-ink-2: #5c6168;        /* 次级文字 */
+  --color-ink-3: #8b9096;        /* 辅助 / 占位文字 */
+  --color-ink-disabled: #a9adb2; /* 禁用文字 */
+  --color-onbrand: #ffffff;      /* 品牌色上的文字 */
+
+  /* 描边 */
+  --color-line: #e4e4df;         /* 常规分隔线 */
+  --color-line-strong: #d6d6d0;  /* 强分隔线 / 输入框边框 */
+  --color-line-subtle: #edece8;  /* 极弱分隔线 */
+
+  /* 品牌色 */
+  --color-brand: #2d64b8;
+  --color-brand-hover: #24539b;
+  --color-brand-active: #1e4785;
+  --color-brand-soft: #edf3fb;   /* 品牌浅底（选中/标签） */
+  --color-brand-border: #c7daf2; /* 品牌描边 */
+  --color-brand-ink: #24539b;    /* 品牌文字 */
+
+  /* 语义色 */
+  --color-success: #2f7a5b;
+  --color-success-soft: #e8f2ed;
+  --color-success-ink: #246048;
+  --color-success-border: #c6e0d2;
+
+  --color-warning: #9a6b12;
+  --color-warning-soft: #f7efdd;
+  --color-warning-ink: #7a5410;
+  --color-warning-border: #e8d6ad;
+
+  --color-danger: #b4382f;
+  --color-danger-soft: #f8eae8;
+  --color-danger-ink: #8e2c25;
+  --color-danger-border: #eec9c4;
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-modal: 10px;
+
+  /* 阴影 */
+  --shadow-pop: 0 4px 16px rgba(38, 42, 46, 0.1);
+  --shadow-card: 0 1px 2px rgba(38, 42, 46, 0.04), 0 1px 3px rgba(38, 42, 46, 0.06);
+}
+
+/* ============================ 基础层 ============================ */
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-app text-ink font-sans antialiased;
+    font-size: 14px;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* 全局浅色滚动条 */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d6d6d0 transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d6d6d0;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #b9b9b2;
+    background-clip: padding-box;
+  }
+
+  /* 无障碍焦点环（WCAG）：非 EP 原生元素统一焦点样式 */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}
+
+/* ======================= Element Plus 浅色主题化 ======================= */
+/* 仅在默认值无法满足清爽风格时覆写；其余沿用 EP 自带浅色主题。 */
+:root {
+  --el-color-primary: #2d64b8;
+  --el-color-primary-light-3: #5b86c9;
+  --el-color-primary-light-5: #93aedd;
+  --el-color-primary-light-7: #c2cdeb;
+  --el-color-primary-light-8: #d7deef;
+  --el-color-primary-light-9: #edf3fb;
+  --el-color-primary-dark-2: #24539b;
+
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: #f7f7f4;
+  --el-bg-color-overlay: #ffffff;
+
+  --el-text-color-primary: #2b2f33;
+  --el-text-color-regular: #5c6168;
+  --el-text-color-secondary: #8b9096;
+  --el-text-color-placeholder: #a9adb2;
+  --el-text-color-disabled: #a9adb2;
+
+  --el-border-color: #e4e4df;
+  --el-border-color-light: #edece8;
+  --el-border-color-lighter: #f1f1ed;
+  --el-border-color-extra-light: #f5f5f2;
+  --el-border-color-dark: #d6d6d0;
+  --el-border-color-darker: #c7c7c0;
+
+  --el-fill-color: #f1f1ed;
+  --el-fill-color-light: #f5f5f2;
+  --el-fill-color-lighter: #f7f7f4;
+  --el-fill-color-blank: #ffffff;
+
+  --el-border-radius-base: 6px;
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 9999px;
+
+  --el-font-size-base: 14px;
+  --el-component-size-large: 36px;
+  --el-component-size: 32px;
+  --el-component-size-small: 28px;
+
+  --el-color-success: #2f7a5b;
+  --el-color-warning: #9a6b12;
+  --el-color-danger: #b4382f;
+  --el-color-error: #b4382f;
+}
+
+/* 输入框 / 选择器：清爽描边 + 聚焦品牌色 */
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 1px var(--color-line-strong) inset !important;
+  border-radius: var(--radius-md) !important;
+  transition: box-shadow 150ms ease, background-color 150ms ease;
+}
+.el-input__wrapper:hover,
+.el-textarea__inner:hover,
+.el-select__wrapper:hover {
+  box-shadow: 0 0 0 1px #b9b9b2 inset !important;
+}
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px var(--color-brand) inset,
+    0 0 0 3px rgba(45, 100, 184, 0.12) !important;
+}
+.el-input__inner,
+.el-textarea__inner {
+  color: var(--color-ink) !important;
+}
+.el-input__inner::placeholder,
+.el-textarea__inner::placeholder {
+  color: var(--color-ink-3) !important;
+}
+
+/* 日期选择器弹出层（浅色） */
+.el-picker__popper,
+.el-date-picker,
+.el-date-range-picker {
+  border-radius: var(--radius-modal) !important;
+  box-shadow: var(--shadow-pop) !important;
+  border: 1px solid var(--color-line) !important;
+}
+.el-date-table td.today .el-date-table-cell__text {
+  color: var(--color-brand) !important;
+  font-weight: 600;
+}
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text,
+.el-date-table td.selected .el-date-table-cell__text {
+  background-color: var(--color-brand) !important;
+  color: #fff !important;
+}
+
+/* 对话框 / 抽屉：统一圆角与阴影 */
+.el-dialog,
+.el-message-box {
+  border-radius: var(--radius-modal) !important;
+  box-shadow: var(--shadow-pop) !important;
+}
+
+/* 表格：清爽浅色 */
+.el-table {
+  --el-table-border-color: var(--color-line);
+  --el-table-header-bg-color: var(--color-subtle);
+  --el-table-row-hover-bg-color: var(--color-hover);
+  --el-table-text-color: var(--color-ink);
+  --el-table-header-text-color: var(--color-ink-2);
+  font-size: 13px;
+}
+.el-table th.el-table__cell {
+  font-weight: 600;
+  background-color: var(--color-subtle) !important;
+}
+
+/* ============================ 公用工具类 ============================ */
+/* 细滚动容器（保留原 .custom-scrollbar 语义，改为浅色） */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d6d6d0;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #b9b9b2;
+  background-clip: padding-box;
+}
+
+/* 焦点环工具类 */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* 卡片表面工具类（常用作内容容器） */
+.surface-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* 过渡时长统一 */
+.transition-base {
+  transition: background-color 150ms ease, border-color 150ms ease,
+    color 150ms ease, box-shadow 150ms ease;
+}
+
+/* ==================== 版本更新日志 Markdown 排版 ==================== */
+/* 供「版本更新历史」弹窗与顶栏悬停预览共用；配色沿用上面的 @theme 令牌。
+   渲染器只产出下列固定标签（见 utils/changelog-markdown.ts），无外部 HTML 注入。 */
+.changelog-md {
+  color: var(--color-ink-2);
+  font-size: 13px;
+  line-height: 1.75;
+  word-break: break-word;
+}
+.changelog-md > :first-child { margin-top: 0; }
+.changelog-md > :last-child { margin-bottom: 0; }
+
+.changelog-md h1,
+.changelog-md h2,
+.changelog-md h3,
+.changelog-md h4,
+.changelog-md h5,
+.changelog-md h6 {
+  color: var(--color-ink);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 14px 0 6px;
+}
+.changelog-md h1 { font-size: 15px; }
+.changelog-md h2 { font-size: 14px; }
+.changelog-md h3,
+.changelog-md h4,
+.changelog-md h5,
+.changelog-md h6 {
+  font-size: 13px;
+  padding-left: 9px;
+  border-left: 3px solid var(--color-brand);
+}
+
+.changelog-md p { margin: 4px 0; }
+.changelog-md ul,
+.changelog-md ol { margin: 5px 0 12px; padding-left: 20px; }
+.changelog-md ul { list-style: disc; }
+.changelog-md ol { list-style: decimal; }
+.changelog-md li { margin: 3px 0; padding-left: 2px; }
+.changelog-md li::marker { color: var(--color-brand); }
+
+.changelog-md strong { color: var(--color-ink); font-weight: 600; }
+.changelog-md code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  color: var(--color-brand-ink);
+  background: var(--color-brand-soft);
+  border: 1px solid var(--color-brand-border);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+.changelog-md blockquote {
+  margin: 8px 0;
+  padding: 6px 10px;
+  background: var(--color-subtle);
+  border-left: 3px solid var(--color-line-strong);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  color: var(--color-ink-3);
+  font-size: 12px;
+}
+.changelog-md blockquote p { margin: 0; }
+.changelog-md hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 12px 0;
+}
+
+/* 顶栏悬停预览：同样结构，但更紧凑 */
+.changelog-md.changelog-compact { font-size: 12px; line-height: 1.65; }
+.changelog-md.changelog-compact h1 { font-size: 13px; }
+.changelog-md.changelog-compact h2 { font-size: 12.5px; }
+.changelog-md.changelog-compact h3,
+.changelog-md.changelog-compact h4,
+.changelog-md.changelog-compact h5,
+.changelog-md.changelog-compact h6 { font-size: 12px; margin: 10px 0 4px; }
+.changelog-md.changelog-compact ul,
+.changelog-md.changelog-compact ol { margin: 4px 0 8px; padding-left: 17px; }
+.changelog-md.changelog-compact code { font-size: 0.95em; }

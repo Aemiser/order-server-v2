@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+      - name: Build (default, no wechat code)
+        run: go build ./go/...
+      - name: Assert default build excludes wechatlog
+        run: |
+          if go list -deps ./go/wechatapi ./go/schemaservice ./go/server/wechatorder ./go/sources/wechat | grep -q 'order_server/go/wechatlog'; then
+            echo "default build must not link go/wechatlog" >&2
+            exit 1
+          fi
+      - name: Build (with -tags wechat)
+        run: go build -tags wechat ./go/...
+      - name: Test (default)
+        run: go test ./go/... -count=1
+      - name: Test (with -tags wechat)
+        run: go test -tags wechat ./go/... -count=1
+      - name: Vet
+        run: go vet ./go/...
+
+  frontend:
+    name: Frontend Types & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      # Wails 生成的 model 类型带 convertValues 等附加成员，类型门禁可挡住
+      # 绑定重新生成后业务侧调用形状失配；vite build 是纯静态编译，不需要 Wails 运行时。
+      - name: Install
+        run: npm ci
+      - name: Type check
+        run: npm run lint
+      - name: Build
+        run: npm run build
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          args: --timeout=5m ./go/...
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # 凭据此前只靠 .gitignore 物理挡，这里加一道 CI 密钥扫描兜底：
+      # 任一真实密钥/API key 被 git add -f 或换机打包进仓库都会被拦下。
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"

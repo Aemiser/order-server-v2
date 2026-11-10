@@ -1,0 +1,40 @@
+# ---- 依赖 / 构建产物 ----
+node_modules/
+frontend/dist/
+build/bin/
+build/dist/
+build/*.zip
+build/icon-src/
+*.exe
+*.log
+*.sha256
+*.test
+
+# ---- 运行时数据（日志、导出、临时文件）----
+logs/
+uploads/
+wechat_export/
+tmp/
+nul
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- 本地 / IDE / 工具数据 ----
+.idea/
+.vscode/
+.workbuddy/
+*.iml
+
+# ---- 第三方源码快照（非本项目代码）----
+third_party/
+
+# ---- 本地真实配置（含凭据，严禁提交）----
+# 用法：复制同目录下的 *.example 并去掉 .example 后缀，填入真实值后再启动。
+# 这 6 个文件已从全部历史中清除，版本库里只保留脱敏模板。
+/settings.yaml
+/aimap.json
+/productbelong.json
+/systemPrompt.txt
+/go/cfgseed/cfg_seed.json
+/scripts/cfg_init.sql

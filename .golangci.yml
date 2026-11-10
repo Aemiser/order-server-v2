@@ -1,0 +1,28 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - errcheck        # 检查未处理的 error
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - misspell
+    - revive
+
+issues:
+  # 排除自动生成与第三方移植代码（微信解密来自 chatlog/WeFlow，不强制改造）
+  exclude-rules:
+    - path: go/wechatlog/
+      linters:
+        - revive
+        - errcheck
+        - gosimple
+    - path: _test\.go
+      linters:
+        - errcheck
+  max-issues-per-linter: 0
+  max-same-issues: 0

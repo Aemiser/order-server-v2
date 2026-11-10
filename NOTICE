@@ -1,0 +1,48 @@
+# NOTICE
+
+## 项目许可
+OnePoint / order_server 后端（本仓库）以 **MIT License** 发布。
+版权所有 © 2026 Aemiser。完整文本见根目录 `LICENSE`。
+
+## 第三方组件与署名（合规要求）
+本仓库在 `go/wechatlog`（含其 `internal/` 与 `pkg/` 子包）中**移植 / 改编**了以下开源项目的实现。
+依据相关许可证，我们保留原作者版权与许可证，并在此声明本仓库所做的修改。
+
+### sjzar/chatlog —— Apache-2.0
+- 仓库：https://github.com/sjzar/chatlog
+- 许可证：Apache-2.0（完整文本见本目录 `LICENSE-THIRD-PARTY`）
+- 说明：`go/wechatlog` 的核心「取密钥 / 解密本地 SQLCipher 微信数据库 / 按群名与时间读取消息」逻辑移植自该项目。
+- 本仓库对其所做修改：
+  - 改写为 Go 包（`package wechatlog`）而非独立命令行工具；
+  - 仅做一层薄封装：进程探测 → 取密钥 → 解密本地库 → 读取消息；不启动 HTTP 服务、不操作微信窗口；
+  - 增加构建标签隔离（见下文）。
+
+### hicccc77/WeFlow —— 编排参考
+- 仓库：https://github.com/hicccc77/WeFlow
+- 说明：`go/wechatlog` 的「密钥获取外包（手动 / 本地缓存 / 外部 keyProvider / 只读内存扫描）」与编排思路参考了该项目。
+  请按其仓库许可证与说明使用。
+
+### 微信研究生态致谢（源自上游 Thanks）
+上游 chatlog 致谢并间接影响了本仓库的相关实现，在此一并致谢：
+- @0xlane 的 wechat-dump-rs
+- @xaoyaoo 的 PyWxDump
+- @git-jiadong 的 go-lame / go-silk
+- Anthropic 的 MCP 协议
+以及各 Go 开源库的贡献者。请各自遵循其对应的许可证。
+
+> 说明：上述子依赖（如 go-silk、go-lame、wxproto 编解码等）各自带有其上游许可证（多为 MIT / 类 BSD），
+> 本仓库在集成时遵循其条款；如你对特定子依赖的许可有疑问，请以该子依赖上游仓库的 LICENSE 为准。
+
+## 微信数据能力的构建与分发状态（如实记录）
+- **默认构建不链入**：全仓对 `go/wechatlog` 的直接依赖只存在于 `go/wechatapi/enabled.go`（`//go:build wechat`）。
+  默认构建走 `go/wechatapi/disabled.go`，仅提供明确的降级状态与错误，不含任何取密钥 / 数据库解密代码；
+  可用 `go list -deps .` 核验依赖图。`go/sources/wechat` 作为上层 ChatSource 适配器不带构建标签、默认构建也参与编译，但它只依赖该门面，不引入任何取密钥 / 数据库解密代码；CI 对默认依赖图有断言。
+- **桌面应用构建会链入**：`wails.json` 固定 `build:tags: "wechat"`，`wails build` / `wails dev` 自动带该标签，
+  因此发布的 Windows 桌面版仍包含微信数据能力（可用 `wails build -dryrun` 查看 `Tags` 行）。
+  分发或使用该版本时须遵守下述合规声明。
+
+## 使用与合规声明
+本软件所含的微信数据能力**仅适用于你自己合法拥有或已获授权的聊天数据**，
+严禁用于未经授权访问、查看或分析他人聊天记录。
+使用者须自行承担使用过程中的全部风险与法律责任，并遵守所在司法辖区的相关法律法规，
+以及所使用第三方服务（如 LLM 提供商）的条款与隐私政策。开发者不对使用本工具导致的任何损失承担责任。

@@ -1,0 +1,137 @@
+-- order_server cfg_* 配置表初始化脚本
+-- 由 scripts/gen_cfg_seed.py 从 go/cfgseed/cfg_seed.json 自动生成，请勿手工编辑。
+-- 程序每次启动会自动建表并在空表时灌入种子；本脚本用于新环境手工部署 / 备份。
+-- INSERT IGNORE：重复执行安全，且不会覆盖数据库中已修改过的配置。
+
+CREATE TABLE IF NOT EXISTS `cfg_settings` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `cfg_group` varchar(64) NOT NULL,
+  `cfg_key` varchar(128) NOT NULL,
+  `cfg_value` text,
+  `value_type` varchar(16) DEFAULT 'string',
+  `remark` varchar(255) DEFAULT NULL,
+  `enabled` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cfg_setting` (`cfg_group`,`cfg_key`),
+  KEY `idx_cfg_settings_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `cfg_ai_models` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `code` varchar(64) NOT NULL,
+  `label` varchar(64) NOT NULL,
+  `name` varchar(64) DEFAULT NULL,
+  `model_type` bigint NOT NULL,
+  `api_key` varchar(255) DEFAULT NULL,
+  `api_url` varchar(255) DEFAULT NULL,
+  `model_name` varchar(64) DEFAULT NULL,
+  `timeout` bigint DEFAULT '600',
+  `enabled` tinyint(1) DEFAULT '1',
+  `sort_order` bigint DEFAULT '0',
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cfg_ai_model_code` (`code`),
+  KEY `idx_cfg_ai_models_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `cfg_product_belongs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `category` varchar(64) NOT NULL,
+  `aliases` text,
+  `sort_order` bigint DEFAULT '0',
+  `enabled` tinyint(1) DEFAULT '1',
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cfg_product_category` (`category`),
+  KEY `idx_cfg_product_belongs_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `cfg_prompts` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `code` varchar(64) NOT NULL,
+  `name` varchar(128) DEFAULT NULL,
+  `scene` varchar(64) DEFAULT NULL,
+  `content` longtext,
+  `is_template` tinyint(1) DEFAULT '0',
+  `enabled` tinyint(1) DEFAULT '1',
+  `sort_order` bigint DEFAULT '0',
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cfg_prompt_code` (`code`),
+  KEY `idx_cfg_prompts_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `cfg_order_action_rules` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `keyword` varchar(128) NOT NULL,
+  `action_type` varchar(16) NOT NULL,
+  `field_name` varchar(32) DEFAULT NULL,
+  `value_rule` varchar(32) DEFAULT NULL,
+  `scope` varchar(16) DEFAULT 'both',
+  `priority` bigint DEFAULT '0',
+  `enabled` tinyint(1) DEFAULT '1',
+  `sort_order` bigint DEFAULT '0',
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cfg_action_rule_keyword` (`keyword`),
+  KEY `idx_cfg_order_action_rules_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- cfg_settings：settings.yaml 中除 log/db 外的通用配置
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('email','domain','smtp.qq.com','string','SMTP 服务器',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('email','port','587','int','SMTP 端口',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('email','sendEmail','CHANGE_ME_SENDER_EMAIL','string','发件邮箱',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('email','AuthCode','CHANGE_ME_EMAIL_AUTH_CODE','string','邮箱授权码',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('email','sendNickname','Aemiser','string','发件人昵称',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('email','SSL','false','bool','是否启用 SSL',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('email','TLS','false','bool','是否启用 TLS',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('savePath','excel','./uploads','string','Excel 导出目录',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('savePath','json','./uploads','string','JSON 导出目录',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('version','repo','Aemiser/order_manager','string','版本检查的 GitHub 仓库',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('version','mirrors','[]','json','下载镜像模板，占位符 {url}/{tag}/{file}',1);
+INSERT IGNORE INTO `cfg_settings` (`cfg_group`,`cfg_key`,`cfg_value`,`value_type`,`remark`,`enabled`) VALUES ('auth','requireLogin','false','bool','启动是否需要登录',1);
+
+-- cfg_ai_models：原 aimap.json + settings.yaml(aimodel) + 代码里写死的 URL/模型名
+INSERT IGNORE INTO `cfg_ai_models` (`code`,`label`,`name`,`model_type`,`api_key`,`api_url`,`model_name`,`timeout`,`enabled`,`sort_order`,`remark`) VALUES ('deepseek','Deepseek','DeepSeek',1,'CHANGE_ME_DEEPSEEK_API_KEY','https://api.deepseek.com/v1/chat/completions','deepseek-chat',600,1,1,'由 aimap.json + settings.yaml(aimodel) 迁移');
+INSERT IGNORE INTO `cfg_ai_models` (`code`,`label`,`name`,`model_type`,`api_key`,`api_url`,`model_name`,`timeout`,`enabled`,`sort_order`,`remark`) VALUES ('qwen','Qwen','通义千问',2,'CHANGE_ME_QWEN_API_KEY','https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions','qwen-plus',600,1,2,'由 aimap.json + settings.yaml(aimodel) 迁移');
+
+-- cfg_product_belongs：原 productbelong.json
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('四季青','[]',1,1,'由 productbelong.json 迁移');
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('小金桔','[]',2,1,'由 productbelong.json 迁移');
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('广香一级','["广香", "广香一级果", "广东香水柠檬", "广香柠檬"]',3,1,'由 productbelong.json 迁移');
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('广香二级','[]',4,1,'由 productbelong.json 迁移');
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('金桔','[]',5,1,'由 productbelong.json 迁移');
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('青柠尤力克','["青柠", "尤力克", "尤力克青柠檬", "青柠优力克", "青优力克", "青尤力克", "青檸檬"]',6,1,'由 productbelong.json 迁移');
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('香水柠檬','["香水", "柠檬", "香檬", "香水檬", "香水檸檬"]',7,1,'由 productbelong.json 迁移');
+INSERT IGNORE INTO `cfg_product_belongs` (`category`,`aliases`,`sort_order`,`enabled`,`remark`) VALUES ('黄柠檬','["安岳黄柠檬", "安岳柠檬", "黄柠", "黃檸", "黃檸檬"]',8,1,'由 productbelong.json 迁移');
+
+-- cfg_prompts：全部 AI 提示词（改提示词请直接改这张表）
+INSERT IGNORE INTO `cfg_prompts` (`code`,`name`,`scene`,`content`,`is_template`,`enabled`,`sort_order`,`remark`) VALUES ('order_extract','订单信息提取系统提示词','order','## 角色与任务\n你是一个信息提取助手。请从用户提供的原始文本中，精确提取多条地址信息，并整理成指定的JSON数组格式。\n\n## 输入文本格式示例\n用户输入的文本通常包含多条记录，每条记录格式类似如下（顺序和格式可能略有变化）：\n3-4\\n店名：XXX店\\n电话：XXX\\n地址：XXX，1點點奶茶店（请送到门店）\\n【商品规格1】【商品规格2】...（备注信息）\n\n多条记录之间可能用换行、空格或其他符号分隔，也可能连续排列。\n\n## 提取规则（非常重要）\n1. **记录分割**: 请智能识别文本中的多条记录。每条记录通常包含“店名”、“电话”、“地址”、“【商品规格】”这几个核心要素。以“3-4”或“店名：”作为一条新记录的开始标记。\n2. **收件人**: 请严示例“店名：”后面的内容（例如“达芬奇大润发店”）填入此字段。如果记录中没有明确的“店名：”前缀但有店铺名称（如“正荣润海店”紧挨着电话号码），则直接提取该店铺名作为收件人。\n3. **手机号**: 提取每条记录中的11位手机号码。\n4. **收货地址**: 提取“地址：”后面的完整内容。必须包含“1點點奶茶店（请送到门店）”这部分（如果存在），确保配送的准确性。\n5. **商品规格**:\n   - 提取被【】括起来的所有内容，每条记录可能包含一个或多个商品规格\n   - 将每个【】中的内容解析为结构化的对象格式，包含两个字段：\n     * \'name\': 商品名称（字符串类型）\n     * \'weight\': 商品重量（数值类型，单位为斤）\n   - 解析规则：\n     * 商品名称和重量之间可能用空格、冒号、或其他符号分隔\n     * 常见的格式如：“香水柠檬5斤”、“黄柠檬10斤”、“广香一级30斤”等\n     * 重量单位默认为“斤”，需要去除单位只保留数值\n6. **备注**:\n   - 提取最后一个【商品规格】的右括号“】”之后的所有内容\n   - 提取类似于\'3-4\'后面的所有内容\n   - 备注信息可能包含括号、特殊符号、文字说明等\n   - 如果【商品规格】之后没有内容，则备注字段为空字符串\n   - 备注信息应完整保留原始格式，包括括号、空格等\n\n## 商品规格解析示例\n- 输入："【香水柠檬5斤】" → 解析为 \'{"name": "香水柠檬", "weight": 5}\'\n- 输入："【黄柠檬10斤】" → 解析为 \'{"name": "黄柠檬", "weight": 10}\'\n- 输入："【广香一级30斤】" → 解析为 \'{"name": "广香一级", "weight": 30}\'\n- 输入："【香水柠檬5斤】【黄柠檬10斤】" → 解析为 \'[{"name": "香水柠檬", "weight": 5}, {"name": "黄柠檬", "weight": 10}]\'\n\n## 备注提取示例\n- 输入："【黄柠檬10斤】（记得发两箱哦~~~）" → 备注为 "（记得发两箱哦~~~）"\n- 输入："【广香一级30斤】 请尽快发货" → 备注为 " 请尽快发货"\n- 输入："【香水柠檬5斤】" → 备注为 ""（空字符串）\n- 输入："3-4样品" → 备注为 "样品"\n\n## 输出要求\n- 请只输出一个纯净的、严格的**JSON数组**，不要包含任何解释、Markdown标记或额外的文字。\n- 数组中的每个元素是一个JSON对象，包含以下字段：\n  * \'收件人\': 字符串类型\n  * \'手机号\': 字符串类型\n  * \'收货地址\': 字符串类型\n  * \'商品规格\': 数组类型，数组中的每个元素是 \'{"name": "商品名称", "weight": 重量数值}\' 格式的对象\n  * \'备注\': 字符串类型，如果无备注信息则为空字符串\n\n- 如果输入文本中只有一条记录，也请以包含单个对象的数组形式返回（例如：[{...}]）。\n- 严格按照输入顺序输出对应的识别结果。\n\n## 输出格式示例\n[\n{\n"收件人": "中山西路店",\n"手机号": "183****6605",\n"收货地址": "华夏省大兵市新罗区中山西路1-9号，1點點奶茶店（请送到门店）",\n"商品规格": [\n{"name": "香水柠檬", "weight": 5}\n],\n"备注": ""\n},\n{\n"收件人": "示例轻工学院店",\n"手机号": "131****1063",\n"收货地址": "华夏省大兵市西园区示例轻工学院校内教师公寓A栋一楼，1點點奶茶店（请送到门店）",\n"商品规格": [\n{"name": "香水柠檬", "weight": 5},\n{"name": "黄柠檬", "weight": 10}\n],\n"备注": ""\n},\n{\n"收件人": "郭示例",\n"手机号": "135****4329",\n"收货地址": "华夏省大兵市密云区古北镇水镇景区-示例茶盏",\n"商品规格": [\n{"name": "黄柠檬", "weight": 10},\n{"name": "广香一级", "weight": 30}\n],\n"备注": "（记得发两箱哦~~~）"\n}\n]\n\n## 用户输入示例\n3-4\n店名：中山西路店\n电话：183****6605\n地址：华夏省大兵市新罗区中山西路1-9号，1點點奶茶店（请送到门店）\n【香水柠檬5斤】\n\n3-4\n店名：示例轻工学院店\n电话：131****1063\n地址：华夏省大兵市西园区示例轻工学院校内教师公寓A栋一楼，1點點奶茶店（请送到门店）\n【香水柠檬5斤】【黄柠檬10斤】\n\n郭示例， 135****4329\n华夏省大兵市密云区古北镇水镇景区-示例茶盏\n【黄柠檬10斤】\n【广香一级30斤】（记得发两箱哦~~~）',0,1,1,'由 systemPrompt.txt 迁移；供 deepseek.go / qwen.go 的 system 消息使用');
+INSERT IGNORE INTO `cfg_prompts` (`code`,`name`,`scene`,`content`,`is_template`,`enabled`,`sort_order`,`remark`) VALUES ('wechat_order_base','微信订单判定基础提示词','wechat','## 角色与任务\n你是「1點點奶茶」原料配送的信息提取助手。输入是微信群里的一条聊天消息，\n请判断它是不是一条「订单 / 下单信息」，并从原始文本中精确提取多条地址信息，整理成指定的 JSON 格式。\n\n## 输入文本格式示例\n一条消息通常是一笔订单，也可能连续包含多笔，每笔格式类似：\n11-7\n店名：示例广场店\n收件人：李示例\n电话：151****7083\n地址：华夏省大兵市健康东街示例路1号，1點點奶茶店\n【广香柠檬5斤】\n也可能完全没有标签，例如：\n11-7\n黄示例：183****4012\n华夏省大兵市南山区 示例三道示例湾睿印B1层137号.示例牛道·潮汕活海鲜火锅(黑金店)\n【黄柠檬8斤】~~\n\n## 提取规则（非常重要）\n1. 记录分割：智能识别文本中的多笔订单。以「M-D」日期行（如 11-7、11/6、11月6日）或「店名：」作为一笔新记录的开始标记；一条消息含多笔时拆成 orders 数组的多个元素，并严格按输入顺序输出。\n2. 收件人：严示例「店名：」后面的内容填入此字段；没有「店名：」但有「收货人 / 收件人 / 联络人 / 联系人」时取其后的姓名；仍没有则取「姓名 + 冒号」前的称呼（如「黄示例」），或紧挨电话号码的店铺名、地址末尾的门店名。**不要因为没写「店名：」「地址：」就判为非订单**。\n3. 手机号：提取每条记录中的 11 位手机号码；固话保留原始号码文字，去掉多余空格与连字符。\n4. 收货地址：提取「地址：/店址：/收货地址：」后面的完整内容，必须包含末尾门店名与括号说明（如「1點點奶茶店（请送到门店）」「(黑金店)」），确保配送准确性；没有标签时取整行含省 / 市 / 区 / 街道 / 门牌的完整地址文本。\n5. 商品规格：提取被【】括起来的所有内容，把每个【】解析成 {"name":"商品名称","weight":重量数值}：\n   - 商品名称与重量之间可能是空格、冒号或无分隔，如「香水柠檬5斤」「黄柠檬 8斤」「广香一级30斤」；\n   - weight 为数字，单位默认「斤」，去掉单位只保留数值；\n   - name 必须严格保留原文品名，不要自行补全或归一化（「广香5斤」就是 name="广香"，不能写成「广香柠檬」），因为下游按原文品名做商品归属；\n   - 一条消息可以有多个商品行；不带【】的「品名 + 数字 + 斤」商品行也按同样规则解析。\n   示例：「【香水柠檬5斤】」→ {"name":"香水柠檬","weight":5}；「【香水柠檬5斤】【黄柠檬10斤】」→ 两个对象。\n6. 备注：提取最后一个【商品规格】的右括号「】」之后的所有内容；另外类似「3-4样品」里日期之后的「样品」也算备注；没有则为空字符串；备注应完整保留原始格式（括号、波浪号、空格等）。\n   示例：「【黄柠檬10斤】（记得发两箱哦~~~）」→「（记得发两箱哦~~~）」；「【广香一级30斤】 请尽快发货」→「 请尽快发货」；「【香水柠檬5斤】」→ ""。\n   多笔订单之间的纯符号分隔符（如「。。。。。。。。。。」、空行）属于订单分隔，不要当成备注。\n\n## 日期（订单的配送日期，不是消息发送时间）\n- order_date：只从消息开头的日期标记提取，统一写成 "M-D"（如 "11-7"）；没有就填空字符串 ""。\n- date_confirmed：有明确日期标记时为 true，没有则为 false。\n- 消息里没有日期标记时，订单信息照常提取，但要置 needs_review=true 交给人工审查，绝不允许自己编造日期。\n\n## 输出要求（非常重要）\n只输出一个严格的 JSON 对象，不要 Markdown、不要解释、不要多余文字。字段如下：\n- "is_order": 布尔，是否为订单 / 下单信息；\n- "order_date": 字符串，"M-D" 或 ""；\n- "date_confirmed": 布尔，是否有明确日期标记；\n- "confidence": "high" / "medium" / "low"，对本次判定的把握程度；\n- "needs_review": 布尔，是否建议人工复核。出现以下任一情况置 true：没有日期标记、日期与目标日期不一致、字段残缺（缺手机号 / 地址 / 商品规格其一）、文本夹杂明显噪声或判定把握低；\n- "reason": 字符串，简要说明判定依据；\n- "orders": 数组，元素字段严格为 "收件人"、"手机号"、"收货地址"、"商品规格"（[{"name":...,"weight":...}]）、"备注"。只有一笔订单也要放进数组；判为非订单时必须是空数组 []。\n\n## 判定标准（宽松：拿不准就判为订单，由下游人工确认；不要替业务方丢单）\n- 只要出现「收货人 / 姓名、手机号或固话、地址或门店名、店名、【商品规格】或品名+数字+斤商品行、配送日期、数量单位」中的任意两项，就判为订单。\n- 判为非订单：寒暄、@机器人、表情包、群播报、日报、通知、闲聊、机器人回复 / 订单管理后台回显、系统提示，以及整条完全没有任何下单要素的消息。\n\n## 输出示例\n输入：\n11-7\n店名：示例广场店\n收件人：李示例\n电话：151****7083\n地址：华夏省大兵市健康东街示例路1号，1點點奶茶店\n【广香柠檬5斤】\n输出：\n{"is_order":true,"order_date":"11-7","date_confirmed":true,"confidence":"high","needs_review":false,"reason":"含店名、收件人、电话、地址与商品行","orders":[{"收件人":"示例广场店","手机号":"151****7083","收货地址":"华夏省大兵市健康东街示例路1号，1點點奶茶店","商品规格":[{"name":"广香柠檬","weight":5}],"备注":""}]}\n\n输入：\n11-7\n黄示例：183****4012\n华夏省大兵市南山区 示例三道示例湾睿印B1层137号.示例牛道·潮汕活海鲜火锅(黑金店)\n【黄柠檬8斤】~~\n输出：\n{"is_order":true,"order_date":"11-7","date_confirmed":true,"confidence":"high","needs_review":false,"reason":"含姓名、电话、纯文本地址与商品行","orders":[{"收件人":"黄示例","手机号":"183****4012","收货地址":"华夏省大兵市南山区 示例三道示例湾睿印B1层137号.示例牛道·潮汕活海鲜火锅(黑金店)","商品规格":[{"name":"黄柠檬","weight":8}],"备注":"~~"}]}\n\n输入（没有日期标记，仍要提取订单，交人工审查）：\n店名：紫薇路店\n电话：150****7778\n地址：华夏省大兵市芙蓉区紫薇路221号，1點點奶茶店（请送到门店）\n【广香5斤】\n输出：\n{"is_order":true,"order_date":"","date_confirmed":false,"confidence":"medium","needs_review":true,"reason":"字段完整但缺少日期标记，无法确认归属日期","orders":[{"收件人":"紫薇路店","手机号":"150****7778","收货地址":"华夏省大兵市芙蓉区紫薇路221号，1點點奶茶店（请送到门店）","商品规格":[{"name":"广香","weight":5}],"备注":""}]}\n\n非订单时输出：\n{"is_order":false,"order_date":"","date_confirmed":false,"confidence":"high","needs_review":false,"reason":"机器人播报 / 闲聊，无下单要素","orders":[]}',0,1,2,'由 wechatorder/ai.go 的 baseOrderPrompt 常量迁移');
+INSERT IGNORE INTO `cfg_prompts` (`code`,`name`,`scene`,`content`,`is_template`,`enabled`,`sort_order`,`remark`) VALUES ('wechat_full_scan','全量消息模式追加提示词','wechat','\n\n## 全量消息模式（规则粗筛已关闭，以下判定依据必须严格执行）\n本次没有前置规则过滤，群里的每一条消息都会交给你，绝大多数是闲聊。请严格按下列依据区分：\n\n【判为订单数据 is_order=true 的必要依据】必须同时具备 A 和 B：\n- A. 可配送对象：店名 / 收件人、11 位手机号或固话、含省市区 / 路街门牌的收货地址 —— 至少出现两项；\n- B. 可下单内容：【商品规格】或「品名 + 数字 + 斤」商品行 —— 至少出现一项。\n- 允许没有「店名：」「地址：」「电话：」标签，纯文本同样成立；允许没有日期标记（此时 order_date=""、date_confirmed=false、needs_review=true）。\n- 订单里夹杂 @、闲聊词、表情不影响判定。\n\n【判为聊天数据 is_order=false 的依据】命中任一条即判非订单：\n- 只有讨论 / 询问 / 催促而没有具体店名、电话、地址与商品行（「今天能送到吗」「补单吗」「多少斤」「辛苦了」「收到」）；\n- 寒暄、@某人、表情包、接龙、群游戏（【答案】【发音】【解释】）、天气 / 新闻播报、日报、通知、纯链接 / 图片 / 语音占位、系统提示与撤回 / 入群通知；\n- 机器人或订单管理后台的回显（含「置信」「今日订单 N 笔」「累计 N 笔」「订单 xxxxxxxx」「/订单」「管理界面」等），这类是系统生成而不是顾客下单；\n- 只有孤立的单个要素（仅一个手机号、仅一个地址、仅一个【标签】），不足以构成订单。\n- 判为非订单时 orders 必须是空数组 []，reason 简要写明属于哪一类聊天数据。\n\n【边界】宁可误收不可漏收：只要同时具备 A 两项 + B 一项，即使文本里混着闲聊也要判为订单；\n确实拿不准时可以判为订单并把 needs_review=true 交给人工审查，但纯粹的闲聊绝不能判成订单。',0,1,3,'由 wechatorder/ai.go 的 fullScanDiscrimination 常量迁移；粗筛关闭时追加');
+INSERT IGNORE INTO `cfg_prompts` (`code`,`name`,`scene`,`content`,`is_template`,`enabled`,`sort_order`,`remark`) VALUES ('wechat_target_date','目标订单日期注入模板','wechat','\n\n## 本轮目标订单日期（系统注入）\n系统本轮要识别的是 **{{date}}** 的订单，顾客通常会在消息首行写成「{{label}}」。\n- 首行有「11-7」「11/7」「11月7日」这类日期标记时，如实提取到 order_date（统一 "M-D"），并置 date_confirmed=true；\n- 没有日期标记时，order_date 必须是空字符串、date_confirmed=false、needs_review=true，订单照常提取并交人工审查。**绝对不要**把目标日期硬填进 order_date；\n- 日期标记与目标日期不一致时，如实填写原日期并置 needs_review=true，由人工判断是否属于本轮。',1,1,4,'由 targetDatePrompt 迁移；占位符 {{date}}=YYYY-MM-DD，{{label}}=M-D');
+INSERT IGNORE INTO `cfg_prompts` (`code`,`name`,`scene`,`content`,`is_template`,`enabled`,`sort_order`,`remark`) VALUES ('wechat_order_action','聊天记录订单操作识别提示词','wechat','## 角色与任务\n你是「1點點奶茶」原料配送的订单助手。输入是微信群里的一条「后续消息」，可能引用了此前的一条订单消息，同时会附上【此前已识别的订单候选】列表。\n你只负责判断：这条消息是不是对**已下订单的操作**（删除 / 修改），并输出严格 JSON。\n订单本身的提取由另一条链路完成，本任务**不要提取新订单**。\n\n## 一、什么算订单操作\n- 删除（action=delete）：这单不要了、这单取消、退掉、撤单、别送了、不用送了、删掉这单、不要这单、这单作废、那单别要了。\n- 修改（action=modify）：\n  * 加量：加五斤、加 5 斤、补 3 斤、再加两斤、多来 2 斤、加单（追加商品）\n  * 减量 / 去掉：少两斤、减 2 斤、不要黄柠檬了、去掉广香、广香减 3 斤\n  * 改量：广香改成 8 斤、换成 10 斤、改成 3 斤\n  * 改字段：地址改成…、电话换成…、收件人改成…、备注加…\n- 判为非操作（is_action=false, action=none）：\n  * 完整的新订单（带地址、电话、【商品规格】）；\n  * 纯闲聊、提问、催单、确认收到、报价、群公告、机器人 / 管理后台回显；\n  * 只是讨论别人的订单、没有明确指令；\n  * 对已处理事项的复述（如「已经取消了」）。\n\n## 二、定位目标订单的线索（尽量填全，绝不编造）\n输入会用【引用消息原文】标出被引用的订单消息（如果有）。\n- 有引用：quote_present=true；把引用原文里的店名 / 手机号 / 品名摘进 keywords；candidate_no 填它对应的候选编号（能对上就填，对不上填 0）；quote_excerpt 写引用原文里最能定位的一小段。\n- 没引用：从字面提取门店名 / 收件人 / 电话 / 地址片段 / 品名放进 keywords；store / phone / product 能确定就填，不能就留空。\n  * 「寿光示例广场店，加五斤」→ keywords=["寿光示例广场店"]，add_specs=[{"name":"","weight":5}]\n  * 「今天那个寿光示例广场店加单」→ keywords=["寿光示例广场店"]，day_scope="today"，add_specs 为空、confidence=low\n  * 「今天那个寿光示例广场店这单不要了」→ keywords=["寿光示例广场店"]，day_scope="today"，action=delete\n- day_scope：出现「今天 / 今天那个」填 today；「刚才 / 刚发的 / 上一单」填 recent；没有时间词填 ""。\n- same_sender：操作人与订单发送人是同一人填 true（多数情况如此）；不确定填 false。\n- 订单操作一定发生在该订单消息**之后**，请结合「就近 + 同人 + 关键词」判断 candidate_no。\n- 严禁编造原文没有的店名、品名、数字；拿不准就留空并把 confidence 填 low。\n\n## 三、changes 字段规则\n- add_specs：明确说「加 N 斤 / 补 N 斤 / 多 N 斤」时填；能判断品名就写 name，判断不了 name 留空字符串、weight 填数字（后端在订单只有一个规格时自动补品名）。\n- set_specs：「改成 N 斤 / 换成 N 斤」时填，name 尽量写品名，weight 是**改后的总斤数**（不是增量）。\n- remove_specs：「去掉 X / 不要 X 了」时填，weight 可填 0。\n- 只改字段时填 recipient / phone / address / remarks（新值），其余数组为空。\n- 「加单」但没说加什么或加多少：仍判 is_action=true、action=modify，但 add_specs 留空、confidence=low，交人工处理，不要编造数量。\n- 一条消息只针对一笔订单；多个候选都可能时 confidence=low，不要乱猜。\n\n## 四、输出（只输出一个严格 JSON 对象，不要 Markdown、不要解释、不要多余文字）\n{\n  "is_action": false,\n  "action": "none",\n  "confidence": "high",\n  "reason": "",\n  "target": {\n    "quote_present": false,\n    "quote_excerpt": "",\n    "candidate_no": 0,\n    "keywords": [],\n    "store": "",\n    "phone": "",\n    "product": "",\n    "day_scope": "",\n    "same_sender": true\n  },\n  "changes": {\n    "add_specs": [],\n    "remove_specs": [],\n    "set_specs": [],\n    "recipient": "",\n    "phone": "",\n    "address": "",\n    "remarks": ""\n  }\n}',0,1,5,'一键识别第二阶段：从后续聊天消息里识别删除 / 修改订单的操作');
+
+-- cfg_order_action_rules：订单操作自定义术语规则（口语 -> 删除 / 修改）
+INSERT IGNORE INTO `cfg_order_action_rules` (`keyword`,`action_type`,`field_name`,`value_rule`,`scope`,`priority`,`enabled`,`sort_order`,`remark`) VALUES ('消单了吗/消单吗/销单了吗','ignore','','none','trigger',200,1,1,'疑问句不是操作指令；匹配词更长，优先于「消单」');
+INSERT IGNORE INTO `cfg_order_action_rules` (`keyword`,`action_type`,`field_name`,`value_rule`,`scope`,`priority`,`enabled`,`sort_order`,`remark`) VALUES ('消单/销单/抹单/砍单','delete','','none','both',100,1,2,'群内口语：取消 / 删除订单');
+INSERT IGNORE INTO `cfg_order_action_rules` (`keyword`,`action_type`,`field_name`,`value_rule`,`scope`,`priority`,`enabled`,`sort_order`,`remark`) VALUES ('改地址/地址改/地址换成/换地址','modify','address','after','both',90,1,3,'取「为 / 改成 / ：」之后的新地址');
+INSERT IGNORE INTO `cfg_order_action_rules` (`keyword`,`action_type`,`field_name`,`value_rule`,`scope`,`priority`,`enabled`,`sort_order`,`remark`) VALUES ('改电话/电话改/电话换成/换电话','modify','phone','phone','both',90,1,4,'从消息正文里抽手机号');
+INSERT IGNORE INTO `cfg_order_action_rules` (`keyword`,`action_type`,`field_name`,`value_rule`,`scope`,`priority`,`enabled`,`sort_order`,`remark`) VALUES ('改收件人/收件人改/店名改','modify','recipient','after','both',90,1,5,'取「为 / 改成 / ：」之后的新店名 / 收件人');
+INSERT IGNORE INTO `cfg_order_action_rules` (`keyword`,`action_type`,`field_name`,`value_rule`,`scope`,`priority`,`enabled`,`sort_order`,`remark`) VALUES ('加备注/备注加/这单发/那单发','modify','remarks','append_rest','both',80,1,6,'不带明确动词的追加要求，追加到原备注而不是覆盖');
+INSERT IGNORE INTO `cfg_order_action_rules` (`keyword`,`action_type`,`field_name`,`value_rule`,`scope`,`priority`,`enabled`,`sort_order`,`remark`) VALUES ('改规格/规格改/改商品','modify','specs','after','both',90,1,7,'新规格按原文【品名N斤】解析，解析不出交人工');

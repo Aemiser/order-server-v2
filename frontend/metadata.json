@@ -1,0 +1,5 @@
+{
+  "name": "OrderMaster Pro",
+  "description": "智能订单识别与管理系统，支持 AI 自动解析文本订单并导出 Excel。",
+  "requestFramePermissions": []
+}
